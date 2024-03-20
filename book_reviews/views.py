@@ -2,7 +2,9 @@
 
 from django.http import JsonResponse, HttpRequest, HttpResponse
 from django.views.generic import TemplateView, View
-from django.shortcuts import render, redirect
+from django.shortcuts import redirect
+from django.template.loader import render_to_string
+
 
 from .models import Review
 from .forms import ReviewForm
@@ -14,7 +16,6 @@ class HomePageView(TemplateView):
     def get_context_data(self, **kwargs) -> dict:
         # TODO(leonqu): need to add recent review list
         recent_list = [i.get_as_recent() for i in Review.objects.all()[:3]]
-        print(recent_list)
         return {'user': None, 'recent_list': recent_list, 'change_form': ReviewForm()}
     
     def post(self, request) -> HttpResponse:
@@ -61,11 +62,20 @@ class ReviewDetailView(View):
 
     def get(self, request: HttpRequest) -> JsonResponse:
         review_id = request.GET.get('id', 0)
+
         try:
             review = self.review_model.objects.get(id=review_id)
         except self.review_model.DoesNotExist:
             return JsonResponse(
                 {'message': 'Review does not exist.'}, status=404)
 
-        return JsonResponse(review.get_info_as_list(summary=False), safe=False)
+        if request.user.is_authenticated:
+            can_edit = request.user == review.submitted_by
+        else:
+            can_edit = False
+        html_str = render_to_string(
+            'review_display_div.html',
+            {'review': review, 'can_edit': can_edit}
+        )
 
+        return JsonResponse({'content': html_str})

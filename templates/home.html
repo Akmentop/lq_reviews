@@ -57,7 +57,7 @@
             <div class="row"  style="min-height: 800px;">
 <div class="col-sm-7">
     <div class="m-3 border p-3">
-        <div id="detailHint">
+        <div id="reviewDetail">
             Select a review from the Summary List
         </div>
         <div id="viewDetail" style="display: none">
@@ -102,18 +102,21 @@
             <div class="pt-3 pb-2">
                 <h6>Recent Reviews</h6>
             </div>
-            {% for review in recent_list %}
-            <div class="row">
-                <div class="review-summary">
-                    <img src="{{ review.0 }}" class="pe-3" />
-                    <ul>
-                        <li>{{ review.1 }}</li>
-                        <li>{{ review.2 }}</li>
-                        <li>{{ review.3 }}</li>
-                    </ul>
+
+            <div id="recentReviewDiv">
+                {% for review in recent_list %}
+                <div class="row">
+                    <div class="review-summary">
+                        <img src="{{ review.0 }}" class="pe-3 b-btn" data-id="{{ review.4 }}" alt="review photo"/>
+                        <ul>
+                            <li>{{ review.1 }}</li>
+                            <li>{{ review.2 }}</li>
+                            <li>{{ review.3 }}</li>
+                        </ul>
+                    </div>
                 </div>
+                {% endfor %}
             </div>
-            {% endfor %}
         </div>
 
     </div>
@@ -165,7 +168,6 @@
         $(function() {
 
             // init dt
-            var datasourceUrl = "{% url 'book_reviews:datasource' %}";
             searchResultTable = $("#searchResult").DataTable({
                 {#data: dataSet,#}
                 ajax: {
@@ -195,25 +197,9 @@
                     topStart: null
                 },
             });
-
-            searchResultTable.on("click", ".a-btn", function() {
-                let review_id = $(this).data("id");
-                // fetch details from server
-                let detailBaseUrl = $("#detail-base-url").data("url");
-                $.ajax({
-                    url: `${detailBaseUrl}?id=${review_id}`,
-                    dataType: 'json',
-                    timeout: 1000,   // in msec
-                    success: function (data) {
-                        console.log(data);
-                    },
-                    complete: function(textStatus) {
-                        if (textStatus === 'error' || textStatus === 'timeout') {
-                            alert("Server Error. Try later.");
-                        }
-                    }
-                });
-            });
+            recentReviewDiv = $("#recentReviewDiv");
+            searchResultTable.on("click", ".a-btn", detail_display);
+            recentReviewDiv.on("click", ".b-btn", detail_display);
 
         });
 
