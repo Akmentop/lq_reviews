@@ -48,7 +48,13 @@
 
 {% block main %}
 
-<div class="row"  style="min-height: 800px;">
+    <!-- start tab contents -->
+    <div class="tab-content">
+
+    <!-- nav-home tab -->
+        <div class="tab-pane fade  show active" id="nav-home" role="tabpanel">
+
+            <div class="row"  style="min-height: 800px;">
 <div class="col-sm-7">
     <div class="m-3 border p-3">Search or select a recent review from right</div>
 </div>
@@ -56,29 +62,15 @@
     <div class="m-3">
         <div class="row">
             <h5 class="pb-0 mb-0">Search Reviews</h5>
-{#            <div class="input-group">#}
-{#              <input type="text" class="form-control" placeholder="book title">#}
-{#              <div class="input-group-append">#}
-{#                <button class="btn btn-outline-secondary" type="button">#}
-{#                    <img src="/static/icons/search.svg">#}
-{#                </button>#}
-{#              </div>#}
-{#            </div>#}
         </div>
 
         <div class="row mt-4">
-{#            <div class="control-group">#}
-{#                <span class="s-title">Search Results</span>#}
-{#                <button class="btn a-btn px-1 py-0 border">#}
-{#                    <span style="font-size: 0.8em">Clear</span>#}
-{#                </button>#}
-{#            </div>#}
             <div style="width: 95%">
                 <table id="searchResult" class="display" style="width: 100%">
                     <thead>
                     <tr>
                         <th>Review Summary</th>
-                        <th> </th>
+                        <th> </th>   <!-- this is for detail button with no column header -->
                     </tr>
                     </thead>
                     <tbody></tbody>
@@ -92,7 +84,7 @@
             </div>
             <div class="row">
                 <div class="review-summary">
-                    <img src="/static/icons/review_small.png"/>
+                    <img src="/static/icons/review_small.png" />
                     <ul>
                         <li>2024-01-01</li>
                         <li>Learn CSS</li>
@@ -103,7 +95,7 @@
 
             <div class="row">
                 <div class="review-summary">
-                    <img src="/static/icons/review_small.png"/>
+                    <img src="/static/icons/review_small.png" />
                     <ul>
                         <li>2024-01-01</li>
                         <li>Learn CSS</li>
@@ -139,8 +131,24 @@
 
 
 </div>
-
 </div>
+    <!----------------------------------------- end of nav-home -->
+        </div>
+
+    <!-- nav-tab myreviews -->
+        <div class="tab-pane fade" id="nav-myreviews" role="tabpanel">
+            <div class="row"  style="min-height: 800px;">
+                <div class="col">
+                    <h3>Hello MyView Tab!!!</h3>
+                </div>
+            </div>
+
+    <!------------------------------------- end of nav-myreviews -->
+        </div>
+
+    <!------------------------------------ end of nav-tabContent -->
+    </div>
+
 {% endblock %}
 
 {% block perpage_script %}
@@ -155,7 +163,9 @@
 
         function render_button(review_id, type) {
             if (type === 'display') {
-                return "<button class='a-btn' data-id='" + review_id + "'>" + '<img src="/static/icons/zoom-in.svg"><img>' + "</button>"
+                return "<button class='a-btn' data-id='" +
+                    review_id + "'>" +
+                    '<img src="/static/icons/zoom-in.svg"><img>' + "</button>"
             } else {
                 return review_id
             }
@@ -204,15 +214,7 @@
                 },
             });
 
-            // event handler of dt row click
-            {#$("#searchResult > tbody > tr > td").click(function() {#}
-            {#    let elem = $(this).next();#}
-            {#        alert("Clicked on " + elem.html());#}
-            {#    }#}
-            {#);#}
-
-            // need to associate with future elements, too
-            $("#searchResult").on("click", '.a-btn', function() {
+            $("#searchResult").on("click", ".a-btn", function() {
                 let review_id = $(this).data("id");
                 // fetch details from server
                 $.ajax({
@@ -231,7 +233,6 @@
             });
 
         });
-
 
     </script>
 

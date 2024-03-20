@@ -51,7 +51,8 @@ class UserSignupView(View):
                 {'success': False, 'message': 'duplicate username'},
                 status=400)
 
-        return JsonResponse({'success': True, 'username': user.username}, status=201)
+        return JsonResponse(
+            {'success': True, 'username': user.username}, status=201)
 
 
 @method_decorator(csrf_exempt, name='dispatch')

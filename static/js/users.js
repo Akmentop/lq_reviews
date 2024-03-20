@@ -15,6 +15,8 @@ function init() {
     $(document).on("click", "#loginButton", function() {
         let username = $("#loginUsername").val();
         let password = $("#loginPwd").val();
+
+        let login_url = $("#login-url").data("url");
         $.ajax({
             type: 'POST',
             url: "/accounts/login/",
@@ -57,9 +59,10 @@ function init() {
         }
 
         // submit it!
+        let signup_url = $("#signup-url").data("url");
         $.ajax({
             type: 'POST',
-            url: "/accounts/signup/",
+            url: signup_url,
             data: { username: username, password: pwd_1 },
             dataType: 'json',
             success: function (data) {
