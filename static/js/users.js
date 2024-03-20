@@ -1,0 +1,85 @@
+
+
+function init() {
+
+    $("#loginPopup").click(function () {
+        $("#loginUsername").val('');
+        $("#loginPwd").val('');
+        $("#LoginModal").modal("show");
+    });
+
+    $("#signup").click(function () {
+        $("#SignupModal").modal("show");
+    });
+
+    $(document).on("click", "#loginButton", function() {
+        let username = $("#loginUsername").val();
+        let password = $("#loginPwd").val();
+        $.ajax({
+            type: 'POST',
+            url: "/accounts/login/",
+            data:  { username: username, password: password },
+            dataType: "json",
+            success: function (data) {
+                console.log("Login success!");
+                window.location.replace("/");
+            },
+            error: function (errorThrown) {
+                console.log(errorThrown.responseJSON.message);
+                alert(errorThrown.responseJSON.message + '. Signup failed.' );
+            },
+            complete: function() {
+                // close and clean up form
+                $("#SignupModal").modal("hide");
+                username.val("");
+                password.val("");
+            },
+        });
+    });
+
+    // signup button click
+    $("#signupButton").click(function () {
+        let input_username =  $("#su_username");
+        let username = input_username.val();
+
+        if (username.length < 4 || /\s/.test(username)) {
+            alert("username must be 4 chars or longer, no space in it.");
+        }
+
+        let input_pwd_1 = $("#su_pwd_1");
+        let input_pwd_2 = $("#su_pwd_2");
+        let pwd_1 =  input_pwd_1.val();
+        let pwd_2 =  input_pwd_2.val();
+        if   (pwd_1.length < 4) {
+            alert("Password must be 4 chars or longer!");
+        } else if (pwd_1 !== pwd_2) {
+            alert("Passwords do not match!");
+        }
+
+        // submit it!
+        $.ajax({
+            type: 'POST',
+            url: "/accounts/signup/",
+            data: { username: username, password: pwd_1 },
+            dataType: 'json',
+            success: function (data) {
+                alert("Signup success!");
+            },
+            error: function (errorThrown) {
+                console.log(errorThrown.responseJSON.message);
+                alert(errorThrown.responseJSON.message + '. Signup failed.' );
+            },
+            complete: function() {
+                // close and clean up form
+                $("#SignupModal").modal("hide");
+                input_username.val("");
+                input_pwd_1.val("");
+                input_pwd_2.val("");
+            }
+        });
+    });
+}
+
+$(function() {
+    init();
+})

@@ -1,0 +1,10 @@
+__pycache__/
+.DS_Store/
+*.py[cod]
+.idea
+.python-version
+venv/
+instance/
+media/photos/*
+*.db
+db.*

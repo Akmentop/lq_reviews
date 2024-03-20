@@ -1,0 +1,238 @@
+{% extends "main_base.html" %}
+
+{% block extra_style %}
+    <style>
+    .a-btn {
+        background-color: lightgoldenrodyellow;;
+        color: #565221;
+        border: 1px solid lightslategray;
+        border-radius: 4px;
+    }
+
+    .s-title {
+        font-size: 0.9em;
+        font-weight: bold;
+    }
+
+    .review-summary {
+        margin-top: 5px;
+    }
+
+    .review-summary img {
+        float:left;
+        width: 80px;
+        height:80px;
+        object-fit: contain;
+        margin: 0 15px 15px 0;
+    }
+
+    #searchResult th {
+        font-size: 0.9em;
+    }
+
+    #searchResult td {
+        font-size: 0.8em;
+    }
+
+    .dt-paging-button {
+        font-size: 0.8em;
+    }
+
+    .dt-search {
+        font-size: 0.8em;
+    }
+
+    </style>
+{% endblock %}
+
+
+{% block main %}
+
+<div class="row"  style="min-height: 800px;">
+<div class="col-sm-7">
+    <div class="m-3 border p-3">Search or select a recent review from right</div>
+</div>
+<div class="col-sm-5">
+    <div class="m-3">
+        <div class="row">
+            <h5 class="pb-0 mb-0">Search Reviews</h5>
+{#            <div class="input-group">#}
+{#              <input type="text" class="form-control" placeholder="book title">#}
+{#              <div class="input-group-append">#}
+{#                <button class="btn btn-outline-secondary" type="button">#}
+{#                    <img src="/static/icons/search.svg">#}
+{#                </button>#}
+{#              </div>#}
+{#            </div>#}
+        </div>
+
+        <div class="row mt-4">
+{#            <div class="control-group">#}
+{#                <span class="s-title">Search Results</span>#}
+{#                <button class="btn a-btn px-1 py-0 border">#}
+{#                    <span style="font-size: 0.8em">Clear</span>#}
+{#                </button>#}
+{#            </div>#}
+            <div style="width: 95%">
+                <table id="searchResult" class="display" style="width: 100%">
+                    <thead>
+                    <tr>
+                        <th>Review Summary</th>
+                        <th> </th>
+                    </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div>
+            <div class="pt-3 pb-2">
+                <h6>Recent Reviews</h6>
+            </div>
+            <div class="row">
+                <div class="review-summary">
+                    <img src="/static/icons/review_small.png"/>
+                    <ul>
+                        <li>2024-01-01</li>
+                        <li>Learn CSS</li>
+                        <li>some short summary</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="review-summary">
+                    <img src="/static/icons/review_small.png"/>
+                    <ul>
+                        <li>2024-01-01</li>
+                        <li>Learn CSS</li>
+                        <li>some short summary</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="review-summary">
+                    <img src="/static/icons/review_small.png"/>
+                    <ul>
+                        <li>2024-01-01</li>
+                        <li>Learn CSS</li>
+                        <li>some short summary</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="review-summary">
+                    <img src="/static/icons/review_small.png"/>
+                    <ul>
+                        <li>2024-01-01</li>
+                        <li>Learn CSS</li>
+                        <li>some short summary</li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+
+</div>
+
+</div>
+{% endblock %}
+
+{% block perpage_script %}
+    <script>
+        function render_summary(review, type) {
+            if (type === 'display') {
+                return `<ul><li>${review[0]}</li><li>${review[1]}</li><li>${review[2]}</li></ul>`
+            } else {
+                return review
+            }
+        }
+
+        function render_button(review_id, type) {
+            if (type === 'display') {
+                return "<button class='a-btn' data-id='" + review_id + "'>" + '<img src="/static/icons/zoom-in.svg"><img>' + "</button>"
+            } else {
+                return review_id
+            }
+        }
+
+        $(function() {
+
+            // define data for dt
+            var dataSet = [
+                [
+                ["2023/01/01",
+                "Learn MySQL ed 1",
+                "this is a great book!"],
+                1
+                ],
+            ];
+
+            // init dt
+            $("#searchResult").DataTable({
+                {#data: dataSet,#}
+                ajax: {
+                    url: '/datasource',
+                    type: 'GET',
+                    dataSrc: ''
+                },
+                columnDefs: [
+                    {
+                        target: 0,
+                        visible: true,
+                        render: render_summary,
+                    },
+                    {
+                        target: 1,
+                        visible: true,
+                        width: '30px',
+                        render: render_button,
+                    }
+                ],
+                paging: true,
+                pageLength: 4,
+                length_menu: false,
+                info: false,
+                ordering: false,
+                layout: {
+                    topStart: null
+                },
+            });
+
+            // event handler of dt row click
+            {#$("#searchResult > tbody > tr > td").click(function() {#}
+            {#    let elem = $(this).next();#}
+            {#        alert("Clicked on " + elem.html());#}
+            {#    }#}
+            {#);#}
+
+            // need to associate with future elements, too
+            $("#searchResult").on("click", '.a-btn', function() {
+                let review_id = $(this).data("id");
+                // fetch details from server
+                $.ajax({
+                    url: `/detail/${review_id}`,
+                    dataType: 'json',
+                    timeout: 1000,   // in msec
+                    success: function (data) {
+                        console.log(data);
+                    },
+                    complete: function(textStatus) {
+                        if (textStatus === 'error' || textStatus === 'timeout') {
+                            alert("Server Error. Try later.");
+                        }
+                    }
+                });
+            });
+
+        });
+
+
+    </script>
+
+{% endblock %}
