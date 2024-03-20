@@ -57,6 +57,13 @@
             <div class="row"  style="min-height: 800px;">
 <div class="col-sm-7">
     <div class="m-3 border p-3">Search or select a recent review from right</div>
+    <div>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ change_form }}
+            <input type="submit" value="Submit">
+        </form>
+    </div>
 </div>
 <div class="col-sm-5">
     <div class="m-3">

@@ -17,6 +17,9 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
+from django.conf import settings
+from django.conf.urls.static import static
+
 import book_reviews.views
 
 urlpatterns = [
@@ -25,4 +28,4 @@ urlpatterns = [
     path('datasource/', book_reviews.views.dt_data),
     path('detail/<int:review_id>', book_reviews.views.detail),
     path('accounts/', include('accounts.urls', namespace='accounts')),
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
