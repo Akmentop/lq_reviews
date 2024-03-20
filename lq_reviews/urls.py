@@ -20,12 +20,11 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 
-import book_reviews.views
+from book_reviews.views import HomePageView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', book_reviews.views.HomePageView.as_view()),
-    path('datasource/', book_reviews.views.dt_data),
-    path('detail/<int:review_id>', book_reviews.views.detail),
+    path('', HomePageView.as_view(), name='home_page'),
+    path('reviews/', include('book_reviews.urls'), name='book_reviews'),
     path('accounts/', include('accounts.urls', namespace='accounts')),
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

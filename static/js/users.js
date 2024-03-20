@@ -1,5 +1,29 @@
 
 
+function loginUser(username, password) {
+    let login_url = $("#login-url").data("url");
+    $.ajax({
+        type: 'POST',
+        url: "/accounts/login/",
+        data:  { username: username, password: password },
+        dataType: "json",
+        success: function (data) {
+            console.log("Login success!");
+            window.location.replace("/");
+        },
+        error: function (errorThrown) {
+            console.log(errorThrown.responseJSON.message);
+            alert(errorThrown.responseJSON.message + '. Signup failed.' );
+        },
+        complete: function() {
+            // close and clean up form
+            $("#SignupModal").modal("hide");
+            username.val("");
+            password.val("");
+        },
+    });
+}
+
 function init() {
 
     $("#loginPopup").click(function () {
@@ -12,31 +36,19 @@ function init() {
         $("#SignupModal").modal("show");
     });
 
+    // search self checkbox
+    $(document).on("click", "#searchSelf", function () {
+        let is_checked = $(this).is(":checked");
+
+        let url=$("#searchTable-url").data("url") + "?self=" + is_checked;
+        searchResultTable.ajax.url(url);
+        searchResultTable.ajax.reload();
+    });
+
     $(document).on("click", "#loginButton", function() {
         let username = $("#loginUsername").val();
         let password = $("#loginPwd").val();
-
-        let login_url = $("#login-url").data("url");
-        $.ajax({
-            type: 'POST',
-            url: "/accounts/login/",
-            data:  { username: username, password: password },
-            dataType: "json",
-            success: function (data) {
-                console.log("Login success!");
-                window.location.replace("/");
-            },
-            error: function (errorThrown) {
-                console.log(errorThrown.responseJSON.message);
-                alert(errorThrown.responseJSON.message + '. Signup failed.' );
-            },
-            complete: function() {
-                // close and clean up form
-                $("#SignupModal").modal("hide");
-                username.val("");
-                password.val("");
-            },
-        });
+        loginUser(username, password);
     });
 
     // signup button click
@@ -66,7 +78,8 @@ function init() {
             data: { username: username, password: pwd_1 },
             dataType: 'json',
             success: function (data) {
-                alert("Signup success!");
+                alert("Welcome to our Member Area!");
+                loginUser(username, pwd_1);
             },
             error: function (errorThrown) {
                 console.log(errorThrown.responseJSON.message);

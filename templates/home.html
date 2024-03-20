@@ -56,19 +56,30 @@
 
             <div class="row"  style="min-height: 800px;">
 <div class="col-sm-7">
-    <div class="m-3 border p-3">Search or select a recent review from right</div>
-    <div>
-        <form method="post" enctype="multipart/form-data">
-            {% csrf_token %}
-            {{ change_form }}
-            <input type="submit" value="Submit">
-        </form>
+    <div class="m-3 border p-3">
+        <div id="detailHint">
+            Select a review from the Summary List
+        </div>
+        <div id="viewDetail" style="display: none">
+            Details will be here
+        </div>
     </div>
 </div>
 <div class="col-sm-5">
     <div class="m-3">
         <div class="row">
             <h5 class="pb-0 mb-0">Search Reviews</h5>
+
+            <!-- checkbox for search self reviews, only shown for login users -->
+            {% if request.user.is_authenticated %}
+                <div class="control-group pt-3" style="font-size: small;">
+                <label for="searchSelf" class="control px-2" id="searchSelf">
+                    Self Only
+                </label>
+                <input type="checkbox"  class="control" id="searchSelf" />
+            </div>
+            {% endif %}
+
         </div>
 
         <div class="row mt-4">
@@ -76,7 +87,9 @@
                 <table id="searchResult" class="display" style="width: 100%">
                     <thead>
                     <tr>
-                        <th>Review Summary</th>
+                        <th>
+                            Review Summary List
+                        </th>
                         <th> </th>   <!-- this is for detail button with no column header -->
                     </tr>
                     </thead>
@@ -89,51 +102,20 @@
             <div class="pt-3 pb-2">
                 <h6>Recent Reviews</h6>
             </div>
+            {% for review in recent_list %}
             <div class="row">
                 <div class="review-summary">
-                    <img src="/static/icons/review_small.png" />
+                    <img src="{{ review.0 }}" class="pe-3" />
                     <ul>
-                        <li>2024-01-01</li>
-                        <li>Learn CSS</li>
-                        <li>some short summary</li>
+                        <li>{{ review.1 }}</li>
+                        <li>{{ review.2 }}</li>
+                        <li>{{ review.3 }}</li>
                     </ul>
                 </div>
             </div>
-
-            <div class="row">
-                <div class="review-summary">
-                    <img src="/static/icons/review_small.png" />
-                    <ul>
-                        <li>2024-01-01</li>
-                        <li>Learn CSS</li>
-                        <li>some short summary</li>
-                    </ul>
-                </div>
-            </div>
-
-            <div class="row">
-                <div class="review-summary">
-                    <img src="/static/icons/review_small.png"/>
-                    <ul>
-                        <li>2024-01-01</li>
-                        <li>Learn CSS</li>
-                        <li>some short summary</li>
-                    </ul>
-                </div>
-            </div>
-
-            <div class="row">
-                <div class="review-summary">
-                    <img src="/static/icons/review_small.png"/>
-                    <ul>
-                        <li>2024-01-01</li>
-                        <li>Learn CSS</li>
-                        <li>some short summary</li>
-                    </ul>
-                </div>
-            </div>
-
+            {% endfor %}
         </div>
+
     </div>
 
 
@@ -160,9 +142,11 @@
 
 {% block perpage_script %}
     <script>
+        let searchResultTable;
+
         function render_summary(review, type) {
             if (type === 'display') {
-                return `<ul><li>${review[0]}</li><li>${review[1]}</li><li>${review[2]}</li></ul>`
+                return `<ul><li>${review[3]}</li><li>Title: ${review[4]}</li><li>Blurb: ${review[1]}</li><li>Review: ${review[5]}</li></ul>`
             } else {
                 return review
             }
@@ -180,21 +164,12 @@
 
         $(function() {
 
-            // define data for dt
-            var dataSet = [
-                [
-                ["2023/01/01",
-                "Learn MySQL ed 1",
-                "this is a great book!"],
-                1
-                ],
-            ];
-
             // init dt
-            $("#searchResult").DataTable({
+            var datasourceUrl = "{% url 'book_reviews:datasource' %}";
+            searchResultTable = $("#searchResult").DataTable({
                 {#data: dataSet,#}
                 ajax: {
-                    url: '/datasource',
+                    url: "{% url 'book_reviews:datasource' %}",
                     type: 'GET',
                     dataSrc: ''
                 },
@@ -221,11 +196,12 @@
                 },
             });
 
-            $("#searchResult").on("click", ".a-btn", function() {
+            searchResultTable.on("click", ".a-btn", function() {
                 let review_id = $(this).data("id");
                 // fetch details from server
+                let detailBaseUrl = $("#detail-base-url").data("url");
                 $.ajax({
-                    url: `/detail/${review_id}`,
+                    url: `${detailBaseUrl}?id=${review_id}`,
                     dataType: 'json',
                     timeout: 1000,   // in msec
                     success: function (data) {
