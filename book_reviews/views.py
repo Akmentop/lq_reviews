@@ -1,13 +1,13 @@
 
-
 from django.http import JsonResponse, HttpRequest, HttpResponse
 from django.views.generic import TemplateView, View
 from django.shortcuts import redirect
 from django.template.loader import render_to_string
-
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
 
 from .models import Review
-from .forms import ReviewForm
+from .forms import ReviewAddForm
 
 
 class HomePageView(TemplateView):
@@ -16,24 +16,23 @@ class HomePageView(TemplateView):
     def get_context_data(self, **kwargs) -> dict:
         # TODO(leonqu): need to add recent review list
         recent_list = [i.get_as_recent() for i in Review.objects.all()[:3]]
-        return {'user': None, 'recent_list': recent_list, 'change_form': ReviewForm()}
+        return {'user': None, 'recent_list': recent_list}
     
-    def post(self, request) -> HttpResponse:
-        _ = self
-
-        form = ReviewForm(request.POST, request.FILES)
-        
-        if form.is_valid():
-            rev = form.save(commit=False)
-            # rev.submitted_by = User.objects.get(username=request.user)
-            rev.submitted_by = request.user
-            rev.save()
-        else:
-            print(form.errors)
-
-        return redirect('/')
-        # return render(request, self.template_name, context={'change_form': ReviewForm(), 'register_form': RegisterForm()})
-
+    # def post(self, request) -> HttpResponse:
+    #     _ = self
+    #
+    #     form = ReviewForm(request.POST, request.FILES)
+    #
+    #     if form.is_valid():
+    #         rev = form.save(commit=False)
+    #         # rev.submitted_by = User.objects.get(username=request.user)
+    #         rev.submitted_by = request.user
+    #         rev.save()
+    #     else:
+    #         print(form.errors)
+    #
+    #     return redirect('/')
+    #     # return render(request, self.template_name, context={'change_form': ReviewForm(), 'register_form': RegisterForm()})
 
 
 class DataTableSourceView(View):
@@ -56,12 +55,18 @@ class DataTableSourceView(View):
         return JsonResponse(summ_list, safe=False)
 
 
+@method_decorator(csrf_exempt, name='dispatch')
 class ReviewDetailView(View):
 
     review_model = Review
+    template_names = {
+        'view': 'review_display_div.html',
+        'edit': 'review_edit_div.html'
+    }
 
     def get(self, request: HttpRequest) -> JsonResponse:
         review_id = request.GET.get('id', 0)
+        display_mode = request.GET.get('mode', 'view')
 
         try:
             review = self.review_model.objects.get(id=review_id)
@@ -73,9 +78,52 @@ class ReviewDetailView(View):
             can_edit = request.user == review.submitted_by
         else:
             can_edit = False
+
         html_str = render_to_string(
-            'review_display_div.html',
+            self.template_names[display_mode],
             {'review': review, 'can_edit': can_edit}
         )
 
         return JsonResponse({'content': html_str})
+
+    def post(self, request: HttpRequest) -> JsonResponse:
+        review_id = request.GET.get('id', 0)
+
+        try:
+            review = self.review_model.objects.get(id=review_id)
+            review.blurb = request.POST.get('blurb')
+            review.review = request.POST.get('review')
+            review.save()
+        except  self.review_model.DoesNotExist:
+            return JsonResponse(
+                {'message': 'Review does not exist.'}, status=404)
+
+        return JsonResponse({'message': 'Not implemented.'}, status=200)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class ReviewAddView(View):
+
+    template_name = 'review_add_div.html'
+    model_form = ReviewAddForm
+
+    def get(self, request: HttpRequest) -> JsonResponse:
+
+        if not request.user.is_authenticated:
+            return JsonResponse(
+                {'message': 'Not authenticated.'}, status=403)
+
+        form = self.model_form()
+        html_str = render_to_string(self.template_name, {'form': form})
+        return JsonResponse({'content': html_str}, status=200)
+
+    def post(self, request):
+
+        form = self.model_form(request.POST, request.FILES)
+        if not form.is_valid():
+            return JsonResponse({'message': 'Invalid form.'}, status=400)
+        review = form.save(commit=False)
+        review.submitted_by = request.user
+        review.save()
+        return JsonResponse(
+            {'message': 'Review added.', 'id': review.id}, status=201)

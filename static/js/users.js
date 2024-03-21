@@ -24,6 +24,14 @@ function loginUser(username, password) {
     });
 }
 
+function reloadDT(is_checked) {
+
+    let url=$("#searchTable-url").data("url") + "?self=" + is_checked;
+    console.log(url);
+    searchResultTable.ajax.url(url);
+    searchResultTable.ajax.reload();
+}
+
 function init() {
 
     $("#loginPopup").click(function () {
@@ -36,13 +44,13 @@ function init() {
         $("#SignupModal").modal("show");
     });
 
+
     // search self checkbox
     $(document).on("click", "#searchSelf", function () {
-        let is_checked = $(this).is(":checked");
 
-        let url=$("#searchTable-url").data("url") + "?self=" + is_checked;
-        searchResultTable.ajax.url(url);
-        searchResultTable.ajax.reload();
+        let is_checked = $(this).is(":checked");
+        reloadDT(is_checked);
+
     });
 
     $(document).on("click", "#loginButton", function() {

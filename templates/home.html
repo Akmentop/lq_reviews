@@ -68,21 +68,26 @@
 <div class="col-sm-5">
     <div class="m-3">
         <div class="row">
-            <h5 class="pb-0 mb-0">Search Reviews</h5>
+            <div class="col-8">
+                <h5 class="pb-0 mb-0">Search Reviews</h5>
+                <!-- checkbox for search self reviews, only shown for login users -->
+                {% if request.user.is_authenticated %}
+                    <div class="control-group pt-1" style="font-size: small;">
+                        <label for="searchSelf" class="control px-2">
+                            Self Only
+                        </label>
+                        <input type="checkbox"  class="control" id="searchSelf" />
+                    </div>
 
-            <!-- checkbox for search self reviews, only shown for login users -->
-            {% if request.user.is_authenticated %}
-                <div class="control-group pt-3" style="font-size: small;">
-                <label for="searchSelf" class="control px-2" id="searchSelf">
-                    Self Only
-                </label>
-                <input type="checkbox"  class="control" id="searchSelf" />
-            </div>
-            {% endif %}
-
+                    </div>
+                    <div class="col-3">
+                        <button class="btn btn-sm btn-danger float-end" id="reviewAddBtn">Add New</button>
+                    </div>
+                {% endif %}
         </div>
+        <div class="row"><div class="col-11"><hr /></div></div>
 
-        <div class="row mt-4">
+        <div class="row mt-0">
             <div style="width: 95%">
                 <table id="searchResult" class="display" style="width: 100%">
                     <thead>
@@ -197,9 +202,17 @@
                     topStart: null
                 },
             });
-            recentReviewDiv = $("#recentReviewDiv");
+
             searchResultTable.on("click", ".a-btn", detail_display);
+
+            recentReviewDiv = $("#recentReviewDiv");
             recentReviewDiv.on("click", ".b-btn", detail_display);
+
+            $(document).on("click", "#reviewAddBtn", reviewAdd);
+            $(document).on("click", "#reviewSubmitBtn", reviewEditSubmit);
+            $(document).on("click", "#reviewCancelBtn", reviewEditCancel);
+
+            $(document).on("click", "#reviewAddCancelBtn", reviewAddCancel);
 
         });
 

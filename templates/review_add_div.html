@@ -1,0 +1,32 @@
+<form id="reviewAddForm" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="row form-group">
+        {{ form }}
+    </div>
+
+    <div class="pt-5">
+        <button type="submit" class="control btn btn-sm btn-primary">
+            Add</button>
+        <button class="control btn btn-sm btn-warning" id="reviewAddCancelBtn">
+            Cancel</button>
+</div>
+</form>
+<script>
+    $("#reviewAddForm").submit(function(e) {
+        e.preventDefault();
+        $.ajax({
+            url: "{% url 'book_reviews:review_add' %}",
+            type: "post",
+            data: new FormData(this),
+            dataType: "json",
+            processData: false,
+            contentType: false,
+            success: function(data) {
+                // alert("Review has been successfully added. " + data.id);
+                detail_display("view", data.id);
+                // reload dt table
+                reloadDT();
+            },
+        });
+    });
+</script>

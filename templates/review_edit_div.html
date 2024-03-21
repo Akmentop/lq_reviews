@@ -1,4 +1,4 @@
-<div>
+<form>
     <div class="row">
         <div class="col-5">
             <img src="{{ review.photo.url }}"
@@ -10,9 +10,9 @@
             </div>
             <div class="py-2">
                 <h6>Description:</h6>
-                <p style="min-width: 100%; min-height: 230px; max-height: 230px; font-size: 0.9em">
-                    {{ review.blurb }}
-                </p>
+                <textarea class="form-control" id="reviewEditBlurb"
+                          style="min-width: 100%; min-height: 230px;
+                          max-height: 230px; font-size: 0.9em">{{ review.blurb }}</textarea>
             </div>
         </div>
     </div>
@@ -26,10 +26,9 @@
                     (published: {{ review.date }})
                 </small>
             </h5>
-            <p style="font-weight: lighter; min-width: 100%; min-height: 200px; max-height: 400px;">
-                {{ review.review }}
-            </p>
-
+            <textarea class="form-control" id="reviewEditReview"
+                      style="font-weight: lighter; min-width: 100%;
+                      min-height: 200px; max-height: 400px;">{{ review.review }}</textarea>
         </div>
     </div>
 
@@ -38,12 +37,16 @@
         <hr style="width:90%" />
     </div>
     <div class="row">
-        <div class="col">
-            <button id="reviewEditBtn" class="btn btn-small btn-primary"
-                    onclick="reviewEdit({{ review.id }})">
-                Edit
+        <div class="col control-group">
+            <button id="reviewSubmitBtn" class="btn btn-small btn-primary"
+                    data-id="{{ review.id }}">
+                Submit
+            </button>
+            <button id="reviewCancelBtn" class="btn btn-small btn-warning"
+                    data-id="{{ review.id }}">
+                Cancel
             </button>
         </div>
     </div>
     {% endif %}
-</div>
+</form>
